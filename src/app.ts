@@ -63,7 +63,9 @@ app.use(lusca.xssProtection(true));
 
 
 // Controllers (route handlers)
-import * as userController from "./controllers/user";
+import * as userController from './controllers/user';
+
+app.get('/login', userController.getLogin)
 
 
 export default app;

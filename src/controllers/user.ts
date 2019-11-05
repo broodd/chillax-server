@@ -9,6 +9,8 @@ import { check, sanitize, validationResult } from 'express-validator';
  * Login page.
  */
 export const getLogin = (req: Request, res: Response) => {
+  req.flash('errors', [123, 'some']);
+
   if (req.user) {
     return res.redirect('/');
   }
