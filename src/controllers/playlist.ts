@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { User, UserDocument } from '../models/User';
+import { Playlist, PlaylistDocument } from '../models/Playlist';
 import crypto from 'crypto';
 import { check, sanitize, validationResult } from 'express-validator';
 import logger from '../util/logger';
 
 /**
- * POST /login
- * Sign in using email and password.
+ * Get /playlists
+ * Get popular playlists
  */
-export const postLogin = (req: Request, res: Response, next: NextFunction) => {
+export const getPlaylists = (req: Request, res: Response, next: NextFunction) => {
   check('email', 'Email is not valid').isEmail();
   check('password', 'Password cannot be blank').isLength({ min: 1 });
   // eslint-disable-next-line @typescript-eslint/camelcase

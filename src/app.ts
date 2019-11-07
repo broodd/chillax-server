@@ -3,7 +3,7 @@ import lusca from 'lusca';
 import compression from 'compression';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import flash from 'express-flash';
+// import flash from 'express-flash';
 import path from 'path';
 import logger from './util/logger';
 import { MONGODB_URI, SESSION_SECRET } from './util/secrets';
@@ -33,7 +33,7 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUni
 // Express configuration
 app.set('port', process.env.PORT || 3000);
 app.use(compression());
-app.use(flash());
+// app.use(flash());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(lusca.xframe('SAMEORIGIN'));
@@ -65,7 +65,7 @@ app.use(lusca.xssProtection(true));
 // Controllers (route handlers)
 import * as userController from './controllers/user';
 
-app.get('/login', userController.getLogin)
+app.post('/login', userController.postLogin)
 
 
 export default app;
