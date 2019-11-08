@@ -5,10 +5,6 @@
       true,
       "check-space"
     ],
-    "indent": [
-      true,
-      "spaces"
-    ],
     "one-line": [
       true,
       "check-open-brace",
