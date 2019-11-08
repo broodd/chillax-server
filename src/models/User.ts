@@ -8,9 +8,7 @@ export type UserDocument = mongoose.Document & {
     passwordResetToken: string;
     passwordResetExpires: Date;
 
-    facebook: string;
-    tokens: AuthToken[];
-
+    followers: string[];
     profile: {
         name: string;
         gender: string;
@@ -25,21 +23,11 @@ export type UserDocument = mongoose.Document & {
 
 type comparePasswordFunction = (candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void;
 
-export interface AuthToken {
-    accessToken: string;
-    kind: string;
-}
-
 const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
     password: String,
     passwordResetToken: String,
     passwordResetExpires: Date,
-
-    facebook: String,
-    twitter: String,
-    google: String,
-    tokens: Array,
 
     profile: {
         name: String,
@@ -53,9 +41,11 @@ const userSchema = new mongoose.Schema({
 /**
  * Password hash middleware.
  */
-userSchema.pre('save', function save(next) {
+userSchema.pre('save', async function (next) {
     const user = this as UserDocument;
-    if (!user.isModified('password')) { return next(); }
+    if (!user.isModified('password')) {
+        return next();
+    }
     bcrypt.genSalt(10, (err, salt) => {
         if (err) { return next(err); }
         bcrypt.hash(user.password, salt, undefined, (err: mongoose.Error, hash) => {
