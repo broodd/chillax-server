@@ -1,11 +1,12 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import lusca from 'lusca';
 import compression from 'compression';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import flash from 'express-flash';
+// import flash from 'express-flash';
 import path from 'path';
 import logger from './util/logger';
+import asyncWrapper from './util/error-handler';
 import { MONGODB_URI, SESSION_SECRET } from './util/secrets';
 
 // Create Express server
@@ -33,7 +34,7 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUni
 // Express configuration
 app.set('port', process.env.PORT || 3000);
 app.use(compression());
-app.use(flash());
+// app.use(flash());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(lusca.xframe('SAMEORIGIN'));
@@ -62,10 +63,35 @@ app.use(lusca.xssProtection(true));
 // });
 
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Controllers (route handlers)
 import * as userController from './controllers/user';
+import * as playlistController from './controllers/playlist';
 
-app.get('/login', userController.getLogin)
+app.post('/login', asyncWrapper(userController.postLogin));
+app.post('/signup', asyncWrapper(userController.postSignup));
+
+app.get('/playlists', asyncWrapper(playlistController.getPlaylists));
+app.post('/playlist', asyncWrapper(playlistController.postPlaylist));
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+	const status = err.statusCode || 500;
+  const message = typeof err === 'object' ? err.message : err;
+
+  res.status(status).json({
+		success: false,
+		message,
+	});
+});
 
 
 export default app;

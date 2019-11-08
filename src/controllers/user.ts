@@ -1,24 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { User, UserDocument, AuthToken } from '../models/User';
+import { User, UserDocument } from '../models/User';
 import crypto from 'crypto';
 import { check, sanitize, validationResult } from 'express-validator';
-
-
-/**
- * GET /login
- * Login page.
- */
-export const getLogin = (req: Request, res: Response) => {
-  req.flash('errors', [123, 'some']);
-
-  if (req.user) {
-    return res.redirect('/');
-  }
-  res.render('account/login', {
-    title: 'Login'
-  });
-};
-
+import logger from '../util/logger';
 
 /**
  * POST /login
@@ -32,21 +16,45 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
 
   const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    req.flash('errors', errors.array());
-    return res.redirect('/login');
-  }
+	logger.debug('errors', errors.array());
+};
 
-  passport.authenticate('local', (err: Error, user: UserDocument, info: IVerifyOptions) => {
-    if (err) { return next(err); }
-    if (!user) {
-      req.flash('errors', { msg: info.message });
-      return res.redirect('/login');
-    }
-    req.logIn(user, (err) => {
-      if (err) { return next(err); }
-      req.flash('success', { msg: 'Success! You are logged in.' });
-      res.redirect(req.session.returnTo || '/');
-    });
-  })(req, res, next);
+/**
+ * POST /signup
+ * Create a new account.
+ */
+export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
+  check('email', 'Email is not valid').isEmail();
+	check('password', 'Password cannot be blank').isLength({ min: 1 });
+	
+	// if (!validator.isEmail(req.body.email))
+  //   validationErrors.push({ msg: 'Please enter a valid email address.' });
+  // if (!validator.isLength(req.body.password, { min: 8 }))
+  //   validationErrors.push({ msg: 'Password must be at least 8 characters long' });
+  // if (req.body.password !== req.body.confirmPassword)
+	//   validationErrors.push({ msg: 'Passwords do not match' });
+	
+  // eslint-disable-next-line @typescript-eslint/camelcase
+  sanitize('email').normalizeEmail({ gmail_remove_dots: false });
+
+  const errors = validationResult(req);
+	logger.debug('errors', errors.array());
+
+
+	const existingUser = await User.findOne({ email: req.body.email });
+
+	if (existingUser) {
+		throw 'Account with that email address already exists.';
+	}
+
+	const user: UserDocument = await User.create({
+		email: req.body.email,
+		profile: {
+			name: 'som'
+		}
+	})
+
+	return res.json({
+		data: user
+	})
 };
