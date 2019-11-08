@@ -7,12 +7,16 @@ import mongoose from 'mongoose';
 import path from 'path';
 import logger from './util/logger';
 import asyncWrapper from './util/error-handler';
-import { MONGODB_URI, SESSION_SECRET } from './util/secrets';
+import { MONGODB_URI } from './util/secrets';
 
-// Create Express server
+/**
+ * Create Express server
+ */
 const app = express();
 
-// Connect to MongoDB
+/**
+ * Connect to MongoDB
+ */
 const mongoUrl = MONGODB_URI;
 mongoose.Promise = global.Promise;
 
@@ -31,7 +35,9 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUni
   });
 
 
-// Express configuration
+/**
+ * Express configuration
+ */
 app.set('port', process.env.PORT || 3000);
 app.use(compression());
 // app.use(flash());
@@ -73,7 +79,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Controllers (route handlers)
+/**
+ * Controllers (route handlers)
+ */
+import authGuard from './middlewares/authGuard';
 import * as userController from './controllers/user';
 import * as playlistController from './controllers/playlist';
 
@@ -81,15 +90,19 @@ app.post('/login', asyncWrapper(userController.postLogin));
 app.post('/signup', asyncWrapper(userController.postSignup));
 
 app.get('/playlists', asyncWrapper(playlistController.getPlaylists));
-app.post('/playlist', asyncWrapper(playlistController.postPlaylist));
+app.post('/playlist', authGuard, asyncWrapper(playlistController.postPlaylist));
 
+/**
+ * Error handler
+ */
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-	const status = err.statusCode || 500;
+  const status = err.statusCode || 500;
   const message = typeof err === 'object' ? err.message : err;
 
+  logger.error(`[${status}]: ${message}`, err);
   res.status(status).json({
 		success: false,
-		message,
+		message
 	});
 });
 
