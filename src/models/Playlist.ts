@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { NextFunction } from 'express';
 
-export type PlaylistDocument = mongoose.Document & {
+export type IPlaylist = mongoose.Document & {
 		name: string;
 		img: string;
 		author: string;
@@ -33,4 +33,4 @@ const autoPopulateAuthor = function(next: NextFunction) {
 
 playlistSchema.pre('find', autoPopulateAuthor);
 
-export const Playlist = mongoose.model<PlaylistDocument>('Playlist', playlistSchema);
+export const Playlist = mongoose.model<IPlaylist>('Playlist', playlistSchema);

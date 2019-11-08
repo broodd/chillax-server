@@ -10,7 +10,6 @@ const asyncWrapper = (fn: Function) => {
     try {
       return await fn(req, res, next);
     } catch (error) {
-      logger.error('asyncWrapper error, %O', error);
       return next(error);
     }
   };

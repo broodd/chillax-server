@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
-export type TrackDocument = mongoose.Document & {
+export type ITrack = mongoose.Document & {
 		name: string;
 		img: string;
 		author: string;
+		playlist: string;
 		liked: string[];
 };
 
@@ -14,10 +15,14 @@ const trackSchema = new mongoose.Schema({
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User'
 		},
+		playlist: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Playlist'
+		},
 		liked: [{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User'
 		}],
 }, { timestamps: true });
 
-export const Track = mongoose.model<TrackDocument>('Track', trackSchema);
+export const Track = mongoose.model<ITrack>('Track', trackSchema);

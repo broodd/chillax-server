@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { User, UserDocument } from '../models/User';
-import { check, sanitize, validationResult } from 'express-validator';
+import { User, IUser } from '../models/User';
+import { isEmail, isEmpty, isLength } from 'validator';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
 import { JWT_SECRET } from '../util/secrets';
@@ -11,29 +11,35 @@ import logger from '../util/logger';
  * POST /login
  * Sign in using email and password.
  */
-export const postLogin = (req: Request, res: Response, next: NextFunction) => {
-	check('email', 'Email is not valid').isEmail();
-	check('password', 'Password cannot be blank').isLength({ min: 1 });
-	// eslint-disable-next-line @typescript-eslint/camelcase
-	sanitize('email').normalizeEmail({ gmail_remove_dots: false });
+export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
+	const { email, password } = req.body;
+	let errors = [];
 
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		req.flash('errors', errors.array());
-		return res.redirect('/login');
+	if (!email || !isEmail(email)) {
+		errors.push('Email is not valid')
+	}
+	if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
+		errors.push('Password to short' )
 	}
 
-	const { email, password } = req.body;
+	if (!!errors.length) {
+		throw new ApplicationError(errors[0], 401);
+	}
+
 	const user = await User.findOne({ email });
+
+	if (!user) {
+		throw new ApplicationError('User not found', 401)
+	}
+
 	const passwordCheck = bcrypt.compareSync(password, user.password);
 
 	if (passwordCheck) {
 		const token = jwt.sign({
-			email: user.email,
-			userId: user._id
+			userId: user._id,
+			email: user.email
 		}, JWT_SECRET, {
-			expiresIn: '1h'
+			expiresIn: 60 * 60
 		});
 
 		return res.json({
@@ -50,24 +56,22 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
  * Create a new account.
  */
 export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
-  check('email', 'Email is not valid').isEmail();
-	check('password', 'Password cannot be blank').isLength({ min: 1 });
+	const { name, email, password } = req.body;
+	let errors = [];
 
-	// if (!validator.isEmail(req.body.email))
-  //   validationErrors.push({ msg: 'Please enter a valid email address.' });
-  // if (!validator.isLength(req.body.password, { min: 8 }))
-  //   validationErrors.push({ msg: 'Password must be at least 8 characters long' });
-  // if (req.body.password !== req.body.confirmPassword)
-	//   validationErrors.push({ msg: 'Passwords do not match' });
-
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  // sanitize('email').normalizeEmail({ gmail_remove_dots: false });
-
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(422).json({ errors: errors.array() });
+	if (!name || isEmpty(name)) {
+		errors.push('Name is not valid')
 	}
-	console.log('---', errors);
+	if (!email || !isEmail(email)) {
+		errors.push('Email is not valid')
+	}
+	if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
+		errors.push('Password to short')
+	}
+
+	if (!!errors.length) {
+		throw new ApplicationError(errors[0], 401);
+	}
 
 	const existingUser = await User.findOne({ email: req.body.email });
 
@@ -75,8 +79,9 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 		throw new ApplicationError('Account with that email address already exists.', 401);
 	}
 
-	const user: UserDocument = await User.create({
-		email: req.body.email,
+	const user: IUser = await User.create({
+		email,
+		password,
 		profile: {
 			name: 'som'
 		}
@@ -86,7 +91,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 		userId: user._id,
 		email: user.email
 	}, JWT_SECRET, {
-		expiresIn: '1h'
+		expiresIn: 60 * 60
 	});
 
 	return res.json({

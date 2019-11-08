@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt-nodejs';
 import crypto from 'crypto';
 import mongoose from 'mongoose';
 
-export type UserDocument = mongoose.Document & {
+export type IUser = mongoose.Document & {
     email: string;
     password: string;
     passwordResetToken: string;
@@ -15,6 +15,8 @@ export type UserDocument = mongoose.Document & {
         website: string;
         picture: string;
     };
+    likedPlaylists: string[];
+    likedtracks: string[];
     followers: string[];
 
     comparePassword: comparePasswordFunction;
@@ -37,6 +39,11 @@ const userSchema = new mongoose.Schema({
         picture: String
     },
 
+    liked: [{
+        type:	mongoose.Schema.Types.ObjectId,
+        ref: 'Track'
+    }],
+
     followers: [{
         type:	mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -47,7 +54,7 @@ const userSchema = new mongoose.Schema({
  * Password hash middleware.
  */
 userSchema.pre('save', async function (next) {
-    const user = this as UserDocument;
+    const user = this as IUser;
     if (!user.isModified('password')) {
         return next();
     }
@@ -80,4 +87,4 @@ userSchema.methods.gravatar = function (size: number = 200) {
     return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 };
 
-export const User = mongoose.model<UserDocument>('User', userSchema);
+export const User = mongoose.model<IUser>('User', userSchema);

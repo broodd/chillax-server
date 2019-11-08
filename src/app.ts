@@ -80,17 +80,15 @@ app.use((req, res, next) => {
 });
 
 /**
- * Controllers (route handlers)
+ * Routes
  */
-import authGuard from './middlewares/authGuard';
-import * as userController from './controllers/user';
-import * as playlistController from './controllers/playlist';
+import user from './routes/user';
+import playlist from './routes/playlist';
+import track from './routes/track';
 
-app.post('/login', asyncWrapper(userController.postLogin));
-app.post('/signup', asyncWrapper(userController.postSignup));
-
-app.get('/playlists', asyncWrapper(playlistController.getPlaylists));
-app.post('/playlist', authGuard, asyncWrapper(playlistController.postPlaylist));
+app.use(user);
+app.use(playlist);
+app.use(track);
 
 /**
  * Error handler
@@ -99,7 +97,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   const status = err.statusCode || 500;
   const message = typeof err === 'object' ? err.message : err;
 
-  logger.error(`[${status}]: ${message}`, err);
+  logger.error(`[${status}]: ${message}`);
   res.status(status).json({
 		success: false,
 		message
