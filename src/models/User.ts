@@ -8,16 +8,14 @@ export type UserDocument = mongoose.Document & {
     passwordResetToken: string;
     passwordResetExpires: Date;
 
-    followers: string[];
     profile: {
         name: string;
         gender: string;
         location: string;
         website: string;
         picture: string;
-		};
-		
-		followers: string[];
+    };
+    followers: string[];
 
     comparePassword: comparePasswordFunction;
     gravatar: (size: number) => string;
@@ -37,12 +35,12 @@ const userSchema = new mongoose.Schema({
         location: String,
         website: String,
         picture: String
-		},
-		
-		followers: [{
-			type:	mongoose.Schema.Types.ObjectId,
-			ref: 'User'
-		}]
+    },
+
+    followers: [{
+        type:	mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 }, { timestamps: true });
 
 /**
