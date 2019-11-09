@@ -10,11 +10,18 @@ export type IPlaylist = mongoose.Document & {
 };
 
 const playlistSchema = new mongoose.Schema({
-		name: String,
-		img: String,
+		name: {
+			type: String,
+			required: '{PATH} is required!'
+		},
+		img:  {
+			type: String,
+			required: '{PATH} is required!'
+		},
 		author: {
 			type: mongoose.Schema.Types.ObjectId,
-			ref: 'User'
+			ref: 'User',
+			required: '{PATH} is required!'
 		},
 		tracks: [{
 			type: mongoose.Schema.Types.ObjectId,

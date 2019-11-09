@@ -4,6 +4,7 @@ import { User, IUser } from '../models/User';
 import { isEmpty } from 'validator';
 import { ApplicationError } from '../util/error-handler';
 import logger from '../util/logger';
+import { Types } from 'mongoose';
 
 /**
  * Get /playlist/:id
@@ -52,8 +53,8 @@ export const getPlaylists = async (req: Request, res: Response) => {
  * Get loved playlists
  */
 export const getPlaylistsLiked = async (req: Request, res: Response) => {
-	const { id } = res.locals;
-	const user: IUser = await User.findById(id)
+	const _id = res.locals.user._id;
+	const user: IUser = await User.findById(_id)
 		.populate({
 			path: 'track',
 			select: 'likedPlaylists',
@@ -65,7 +66,7 @@ export const getPlaylistsLiked = async (req: Request, res: Response) => {
 };
 
 /**
- * Post /playlist
+ * POST /playlist
  * Create playlist
  */
 export const postPlaylist = async (req: Request, res: Response, next: NextFunction) => {
@@ -94,5 +95,49 @@ export const postPlaylist = async (req: Request, res: Response, next: NextFuncti
 
 	return res.json({
 		data: playlist
+	});
+};
+
+/**
+ * PUT /playlist/like/:id
+ * Like / unlike playlist
+ */
+export const putPlaylistLike = async (req: Request, res: Response, next: NextFunction) => {
+	const user = res.locals.user;
+	const { id } = req.params;
+
+	const playlist: IPlaylist = await Playlist.findById(id, {
+		liked: 1,
+		author: 1
+	});
+
+	if (!playlist) {
+		throw new ApplicationError('Playlist not found', 404);
+	}
+
+	if (playlist.author == user.id) {
+		return res.json({
+			data: true
+		})
+	}
+
+	const liked = playlist.liked.includes(user._id);
+
+	if (liked) {
+		await playlist.update({
+			$pull: {
+				liked: user.id
+			}
+		});
+	} else {
+		await playlist.update({
+			$addToSet: {
+				liked: user.id
+			}
+		});
+	}
+
+	return res.json({
+		data: !liked
 	});
 };

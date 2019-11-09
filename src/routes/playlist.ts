@@ -15,4 +15,6 @@ playlist.get('/playlists/liked', authGuard, asyncWrapper(playlistController.getP
 
 playlist.post('/playlist', authGuard, asyncWrapper(playlistController.postPlaylist));
 
+playlist.put('/playlist/like/:id', authGuard, asyncWrapper(playlistController.putPlaylistLike));
+
 export default playlist;

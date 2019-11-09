@@ -15,7 +15,8 @@ export default (req: Request, res: Response, next: NextFunction) => {
 
     jwt.verify(token, JWT_SECRET, async (err,  decoded: any) => {
 			if (err) {
-        throw new ApplicationError('Token is not valid', 401);
+				const err = new ApplicationError('Token is not valid', 401);
+				return next(err);
       } else {
         res.locals.token = decoded;
 

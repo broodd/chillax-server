@@ -4,6 +4,7 @@ import { Track, ITrack } from '../models/Track';
 import { User, IUser } from '../models/User';
 import { isEmpty } from 'validator';
 import { ApplicationError } from '../util/error-handler';
+import { Types } from 'mongoose';
 import logger from '../util/logger';
 
 /**
@@ -23,7 +24,7 @@ export const getTracks = async (req: Request, res: Response) => {
  * Get loved tracks
  */
 export const getTracksLiked = async (req: Request, res: Response) => {
-	const { id } = res.locals;
+	const id = res.locals.user.id;
 	const user: IUser = await User.findById(id)
 		.populate({
 			path: 'track',
@@ -31,9 +32,10 @@ export const getTracksLiked = async (req: Request, res: Response) => {
 		});
 
 	res.json({
-		data: user.likedtracks
+		data: user.likedTracks
 	});
 };
+
 
 /**
  * Post /track/:id
@@ -75,5 +77,50 @@ export const postTrack = async (req: Request, res: Response, next: NextFunction)
 
 	return res.json({
 		data: track
+	});
+};
+
+
+/**
+ * PUT /track/like/:id
+ * Like / unlike track
+ */
+export const putTrackLike = async (req: Request, res: Response, next: NextFunction) => {
+	const user = res.locals.user;
+	const { id } = req.params;
+
+	const track: ITrack = await Track.findById(id, {
+		liked: 1,
+		author: 1
+	});
+
+	if (!track) {
+		throw new ApplicationError('Track not found', 404);
+	}
+
+	if (track.author == user.id) {
+		return res.json({
+			data: true
+		})
+	}
+
+	const liked = track.liked.includes(user._id);
+
+	if (liked) {
+		await track.updateOne({
+			$pull: {
+				liked: user.id
+			}
+		});
+	} else {
+		await track.updateOne({
+			$addToSet: {
+				liked: user.id
+			}
+		});
+	}
+
+	return res.json({
+		data: !liked
 	});
 };

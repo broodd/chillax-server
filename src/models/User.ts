@@ -16,8 +16,9 @@ export type IUser = mongoose.Document & {
         picture: string;
     };
     likedPlaylists: string[];
-    likedtracks: string[];
+    likedTracks: string[];
     followers: string[];
+    followersCount: number;
 
     comparePassword: comparePasswordFunction;
     gravatar: (size: number) => string;
@@ -26,8 +27,16 @@ export type IUser = mongoose.Document & {
 type comparePasswordFunction = (candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void;
 
 const userSchema = new mongoose.Schema({
-    email: { type: String, unique: true },
-    password: String,
+    email: {
+			type: String,
+			unique: true,
+			required: '{PATH} is required!'
+		},
+    password: {
+			type: String,
+			required: '{PATH} is required!',
+			// select: false
+		},
     passwordResetToken: String,
     passwordResetExpires: Date,
 
@@ -39,16 +48,34 @@ const userSchema = new mongoose.Schema({
         picture: String
     },
 
-    liked: [{
+		likedPlaylists: [{
+        type:	mongoose.Schema.Types.ObjectId,
+        ref: 'Playlist'
+    }],
+
+		likedTracks: [{
         type:	mongoose.Schema.Types.ObjectId,
         ref: 'Track'
     }],
 
     followers: [{
         type:	mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+				ref: 'User',
+				// select: false
     }]
-}, { timestamps: true });
+}, {
+	toObject: { virtuals: true },
+	toJSON: { virtuals: true },
+	timestamps: true 
+});
+
+userSchema.virtual('followersCount', {
+	ref: 'User',
+	localField: 'followers',
+	foreignField: '_id',
+	count: true
+})
+
 
 /**
  * Password hash middleware.

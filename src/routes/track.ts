@@ -14,4 +14,6 @@ track.get('/tracks/liked', authGuard, asyncWrapper(trackController.getTracksLike
 
 track.post('/track/:id', authGuard, asyncWrapper(trackController.postTrack));
 
+track.put('/track/like/:id', authGuard, asyncWrapper(trackController.putTrackLike));
+
 export default track;
