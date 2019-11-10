@@ -48,21 +48,29 @@ const userSchema = new mongoose.Schema({
         picture: String
     },
 
-		likedPlaylists: [{
-        type:	mongoose.Schema.Types.ObjectId,
-        ref: 'Playlist'
-    }],
+		likedPlaylists: {
+			type: [{
+					type:	mongoose.Schema.Types.ObjectId,
+					ref: 'Playlist'
+			}],
+			select: false
+		},
 
-		likedTracks: [{
+		likedTracks: {
+			type: [{
         type:	mongoose.Schema.Types.ObjectId,
         ref: 'Track'
-    }],
+			}],
+			select: false
+		},
 
-    followers: [{
+    followers: {
+			type: [{
         type:	mongoose.Schema.Types.ObjectId,
 				ref: 'User',
-				// select: false
-    }]
+			}],
+			select: false
+		}
 }, {
 	toObject: { virtuals: true },
 	toJSON: { virtuals: true },

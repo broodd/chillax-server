@@ -23,15 +23,25 @@ const playlistSchema = new mongoose.Schema({
 			ref: 'User',
 			required: '{PATH} is required!'
 		},
-		tracks: [{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Track'
-		}],
-		liked: [{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'User'
-		}],
-}, { timestamps: true });
+		tracks: {
+			type: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'Track',
+			}],
+			select: false
+		},
+		liked: {
+			type: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'User',
+			}],
+			select: false
+		}
+}, {
+	toObject: { virtuals: true },
+	toJSON: { virtuals: true },
+	timestamps: true
+});
 
 const autoPopulateAuthor = function(next: NextFunction) {
   this.populate('author');

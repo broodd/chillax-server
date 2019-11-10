@@ -60,7 +60,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 			userId: user._id,
 			email: user.email
 		}, JWT_SECRET, {
-			expiresIn: 60 * 60
+			expiresIn: '24h'
 		});
 
 		return res.json({
@@ -112,7 +112,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 		userId: user._id,
 		email: user.email
 	}, JWT_SECRET, {
-		expiresIn: 60 * 60
+		expiresIn: '24h'
 	});
 
 	return res.json({

@@ -4,6 +4,7 @@ export type ITrack = mongoose.Document & {
 		name: string;
 		img: string;
 		author: string;
+		src: string;
 		playlist: string;
 		liked: string[];
 };
@@ -22,15 +23,26 @@ const trackSchema = new mongoose.Schema({
 			ref: 'User',
 			required: '{PATH} is required!'
 		},
+		src: {
+			type: String,
+			required: '{PATH} is required!'
+		},
 		playlist: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Playlist',
 			required: '{PATH} is required!'
 		},
-		liked: [{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'User'
-		}],
-}, { timestamps: true });
+		liked: {
+			type: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'User',
+			}],
+			select: false
+		}
+}, {
+	toObject: { virtuals: true },
+	toJSON: { virtuals: true },
+	timestamps: true
+});
 
 export const Track = mongoose.model<ITrack>('Track', trackSchema);

@@ -45,6 +45,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(lusca.xframe('SAMEORIGIN'));
 app.use(lusca.xssProtection(true));
+app.use('/static-tracks', express.static('tracks'));
 
 /**
  * maybe need it later
@@ -79,16 +80,21 @@ app.use((req, res, next) => {
   next();
 });
 
+import multer from './middlewares/upload';
+app.use(multer);
+
 /**
  * Routes
  */
 import user from './routes/user';
 import playlist from './routes/playlist';
 import track from './routes/track';
+import upload from './routes/upload';
 
 app.use(user);
 app.use(playlist);
 app.use(track);
+app.use(upload);
 
 /**
  * Error handler

@@ -17,6 +17,9 @@ Thumbs.db
 # Ignore built ts files
 dist/**/*
 
+# Tracks
+tracks/*
+
 # Other
 debug.log
 yarn.lock

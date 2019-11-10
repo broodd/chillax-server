@@ -7,29 +7,43 @@ import logger from '../util/logger';
 import { Types } from 'mongoose';
 
 /**
- * Get /playlist/:id
- * Get popular playlists
+ * GET /playlist/:id
+ * Get playlist
  */
 export const getPlaylist = async (req: Request, res: Response) => {
-	const playlist: IPlaylist = await Playlist.findById(req.params.id)
-		// maybe change it later
-		// .populate('tracks')
-		.populate(
-			{
-				path: 'tracks',
-				// select: 'tracks',
-				// model: 'Track',
-				// options: {
-				// 	sort: {},
-				// 	skip: 5,
-				// 	limit: 10
-				// },
-				// match: {
-				// 	// filter result in case of multiple result in populate
-				// 	// may not useful in this case
-				// }
+	const { id } = req.params;
+	const user = res.locals.user;
+
+	const playlist = await Playlist.aggregate([
+		{
+			$match: {
+				_id: Types.ObjectId(id)
 			}
-		)
+		},
+		{
+			$lookup: {
+				from: 'users',
+				localField: 'author',
+				foreignField: '_id',
+				as: 'author',
+			}
+		},
+		{ $unwind: '$author' },
+		{
+			$addFields: {
+				liked: {
+					$in: [Types.ObjectId(user.id), '$liked']
+				},
+			},
+		},
+		{
+			$project: {
+				'name': 1,
+				'img': 1,
+				'author.profile': 1
+			}
+		}
+	])
 
 	res.json({
 		data: playlist
@@ -37,11 +51,30 @@ export const getPlaylist = async (req: Request, res: Response) => {
 };
 
 /**
- * Get /playlists
+ * GET /playlists
  * Get popular playlists
  */
 export const getPlaylists = async (req: Request, res: Response) => {
-	const playlists: IPlaylist[] = await Playlist.find({})
+	const { page = 1, limit = 10 } = req.query;
+	const skip = (page - 1) * limit;
+	const user = res.locals.user;
+
+	const playlists = await Playlist.aggregate([
+		{
+			$addFields: {
+				liked: {
+					$in: [Types.ObjectId(user.id), '$liked']
+				},
+			},
+		},
+		{
+			$sort: {
+				createdAt: -1
+			}
+		},
+		{ $skip: +skip },
+		{ $limit: +limit }
+	])
 
 	res.json({
 		data: playlists
@@ -49,19 +82,56 @@ export const getPlaylists = async (req: Request, res: Response) => {
 };
 
 /**
- * Get /playlists/liked
+ * GET /playlists/liked
  * Get loved playlists
  */
 export const getPlaylistsLiked = async (req: Request, res: Response) => {
 	const _id = res.locals.user._id;
 	const user: IUser = await User.findById(_id)
 		.populate({
-			path: 'track',
-			select: 'likedPlaylists',
+			path: 'likedPlaylists',
+			// select: 'likedPlaylists',
 		});
 
 	res.json({
 		data: user.likedPlaylists
+	});
+};
+
+/**
+ * GET /playlists/author/:id
+ * Get author playlists
+ */
+export const getPlaylistsByAuthor = async (req: Request, res: Response) => {
+	const { page = 1, limit = 10 } = req.query;
+	const skip = (page - 1) * limit;
+	const { id } = req.params;
+	const user = res.locals.user;
+
+	const playlists = await Playlist.aggregate([
+		{
+			$match: {
+				author: Types.ObjectId(id)
+			}
+		},
+		{
+			$addFields: {
+				liked: {
+					$in: [Types.ObjectId(user.id), '$liked']
+				},
+			},
+		},
+		{
+			$sort: {
+				createdAt: -1
+			}
+		},
+		{ $skip: +skip },
+		{ $limit: +limit }
+	])
+
+	res.json({
+		data: playlists
 	});
 };
 

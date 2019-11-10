@@ -8,11 +8,30 @@ import { Types } from 'mongoose';
 import logger from '../util/logger';
 
 /**
- * Get /tracks
+ * GET /tracks
  * Get popular tracks
  */
 export const getTracks = async (req: Request, res: Response) => {
-	const tracks: ITrack[] = await Track.find({});
+	const { page = 1, limit = 10 } = req.query;
+	const skip = (page - 1) * limit;
+	const user = res.locals.user;
+
+	const tracks = await Track.aggregate([
+		{
+			$addFields: {
+				liked: {
+					$in: [Types.ObjectId(user.id), '$liked']
+				},
+			},
+		},
+		{
+			$sort: {
+				createdAt: -1
+			}
+		},
+		{ $skip: +skip },
+		{ $limit: +limit }
+	])
 
 	res.json({
 		data: tracks
@@ -20,7 +39,44 @@ export const getTracks = async (req: Request, res: Response) => {
 };
 
 /**
- * Get /tracks/liked
+ * GET /tracks/:id
+ * Get tracks in playlist
+ */
+export const getTracksInPlaylist = async (req: Request, res: Response) => {
+	const { page = 1, limit = 10 } = req.query;
+	const skip = (page - 1) * limit;
+	const { id } = req.params;
+	const user = res.locals.user;
+
+	const tracks = await Track.aggregate([
+		{
+			$match: {
+				playlist: id
+			}
+		},
+		{
+			$addFields: {
+				liked: {
+					$in: [Types.ObjectId(user.id), '$liked']
+				},
+			},
+		},
+		{
+			$sort: {
+				createdAt: -1
+			}
+		},
+		{ $skip: +skip },
+		{ $limit: +limit }
+	])
+
+	res.json({
+		data: tracks
+	});
+};
+
+/**
+ * GET /tracks/liked
  * Get loved tracks
  */
 export const getTracksLiked = async (req: Request, res: Response) => {
@@ -36,9 +92,46 @@ export const getTracksLiked = async (req: Request, res: Response) => {
 	});
 };
 
+/**
+ * GET /tracks/author/:id
+ * Get author tracks
+ */
+export const getTracksByAuthor = async (req: Request, res: Response) => {
+	const { page = 1, limit = 10 } = req.query;
+	const skip = (page - 1) * limit;
+	const { id } = req.params;
+	const user = res.locals.user;
+
+	const tracks = await Track.aggregate([
+		{
+			$match: {
+				author: Types.ObjectId(id)
+			}
+		},
+		{
+			$addFields: {
+				liked: {
+					$in: [Types.ObjectId(user.id), '$liked']
+				},
+			},
+		},
+		{
+			$sort: {
+				createdAt: -1
+			}
+		},
+		{ $skip: +skip },
+		{ $limit: +limit }
+	])
+
+	res.json({
+		data: tracks
+	});
+};
+
 
 /**
- * Post /track/:id
+ * POST /track/:id
  * Add track to playlist
  */
 export const postTrack = async (req: Request, res: Response, next: NextFunction) => {
