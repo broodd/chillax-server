@@ -32,17 +32,25 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
 	const { email, password } = req.body;
+
+	console.log('--- email, password', email, password);
 	let errors = [];
 
 	if (!email || !isEmail(email)) {
-		errors.push('Email is not valid')
+		errors.push({
+			field: 'email',
+			message: 'Email is not valid'
+		})
 	}
 	if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
-		errors.push('Password to short' )
+		errors.push({
+			field: 'password',
+      message: 'Password to short'
+    });
 	}
 
 	if (!!errors.length) {
-		throw new ApplicationError(errors[0], 401);
+		throw new ApplicationError(errors, 401);
 	}
 
 	const user = await User.findOne({ email }, {
@@ -59,11 +67,9 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 		const token = jwt.sign({
 			userId: user._id,
 			email: user.email
-		}, JWT_SECRET, {
-			expiresIn: '24h'
-		});
+		}, JWT_SECRET, {});
 
-		return res.json({
+		return res.status(200).send({
 			token: `Bearer ${token}`,
 			data: user
 		});
@@ -111,9 +117,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 	const token = jwt.sign({
 		userId: user._id,
 		email: user.email
-	}, JWT_SECRET, {
-		expiresIn: '24h'
-	});
+	}, JWT_SECRET, {});
 
 	return res.json({
 		token: `Bearer ${token}`,
