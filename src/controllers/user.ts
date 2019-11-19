@@ -97,7 +97,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 	}
 
 	if (!!errors.length) {
-		throw new ApplicationError(errors[0], 401);
+		throw new ApplicationError(errors, 401);
 	}
 
 	const existingUser = await User.findOne({ email: req.body.email });

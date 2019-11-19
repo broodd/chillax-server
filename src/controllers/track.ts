@@ -17,21 +17,38 @@ export const getTracks = async (req: Request, res: Response) => {
 	const user = res.locals.user;
 
 	const tracks = await Track.aggregate([
-		{
-			$addFields: {
-				liked: {
-					$in: [Types.ObjectId(user.id), '$liked']
-				},
-			},
-		},
-		{
-			$sort: {
-				createdAt: -1
-			}
-		},
-		{ $skip: +skip },
-		{ $limit: +limit }
-	])
+    {
+      $addFields: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'author',
+        foreignField: '_id',
+        as: 'author'
+      }
+    },
+    {
+      $project: {
+        'author.likedPlaylists': 0,
+        'author.likedTracks': 0,
+        'author.followers': 0,
+        'author.password': 0,
+        'author.email': 0
+      }
+    },
+    {
+      $sort: {
+        createdAt: -1
+      }
+    },
+    { $skip: +skip },
+    { $limit: +limit }
+  ]);
 
 	res.json({
 		data: tracks

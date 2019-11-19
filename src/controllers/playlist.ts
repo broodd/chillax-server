@@ -12,6 +12,7 @@ import { Types } from 'mongoose';
  */
 export const getPlaylist = async (req: Request, res: Response) => {
 	const { id } = req.params;
+	console.log('--- id', id);
 	const user = res.locals.user;
 
 	const playlist = await Playlist.aggregate([
@@ -28,7 +29,16 @@ export const getPlaylist = async (req: Request, res: Response) => {
 				as: 'author',
 			}
 		},
-		{ $unwind: '$author' },
+		{
+      $project: {
+				'author.likedPlaylists': 0,
+        'author.likedTracks': 0,
+        'author.followers': 0,
+        'author.password': 0,
+        'author.email': 0,
+        'tracks': 0,
+      }
+    },
 		{
 			$addFields: {
 				liked: {
@@ -36,13 +46,6 @@ export const getPlaylist = async (req: Request, res: Response) => {
 				},
 			},
 		},
-		{
-			$project: {
-				'name': 1,
-				'img': 1,
-				'author.profile': 1
-			}
-		}
 	])
 
 	res.json({
