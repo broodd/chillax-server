@@ -42,6 +42,9 @@ export const getTracks = async (req: Request, res: Response) => {
       }
     },
     {
+      $unwind: '$author'
+    },
+    {
       $sort: {
         createdAt: -1
       }
@@ -56,7 +59,7 @@ export const getTracks = async (req: Request, res: Response) => {
 };
 
 /**
- * GET /tracks/:id
+ * GET /tracks/playlist/:id
  * Get tracks in playlist
  */
 export const getTracksInPlaylist = async (req: Request, res: Response) => {
@@ -66,26 +69,46 @@ export const getTracksInPlaylist = async (req: Request, res: Response) => {
 	const user = res.locals.user;
 
 	const tracks = await Track.aggregate([
-		{
-			$match: {
-				playlist: id
-			}
-		},
-		{
-			$addFields: {
-				liked: {
-					$in: [Types.ObjectId(user.id), '$liked']
-				},
-			},
-		},
-		{
-			$sort: {
-				createdAt: -1
-			}
-		},
-		{ $skip: +skip },
-		{ $limit: +limit }
-	])
+    {
+      $match: {
+        playlist: Types.ObjectId(id)
+      }
+    },
+    {
+      $addFields: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'author',
+        foreignField: '_id',
+        as: 'author'
+      }
+    },
+    {
+      $project: {
+        'author.likedPlaylists': 0,
+        'author.likedTracks': 0,
+        'author.followers': 0,
+        'author.password': 0,
+        'author.email': 0
+      }
+    },
+    {
+      $unwind: '$author'
+    },
+    {
+      $sort: {
+        createdAt: -1
+      }
+    },
+    { $skip: +skip },
+    { $limit: +limit }
+  ]);
 
 	res.json({
 		data: tracks
@@ -120,26 +143,46 @@ export const getTracksByAuthor = async (req: Request, res: Response) => {
 	const user = res.locals.user;
 
 	const tracks = await Track.aggregate([
-		{
-			$match: {
-				author: Types.ObjectId(id)
-			}
+    {
+      $match: {
+        author: Types.ObjectId(id)
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'author',
+        foreignField: '_id',
+        as: 'author'
+      }
+    },
+    {
+      $project: {
+        'author.likedPlaylists': 0,
+        'author.likedTracks': 0,
+        'author.followers': 0,
+        'author.password': 0,
+        'author.email': 0
+      }
 		},
 		{
-			$addFields: {
-				liked: {
-					$in: [Types.ObjectId(user.id), '$liked']
-				},
-			},
-		},
-		{
-			$sort: {
-				createdAt: -1
-			}
-		},
-		{ $skip: +skip },
-		{ $limit: +limit }
-	])
+			$unwind: '$author'
+		}
+    {
+      $addFields: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        }
+      }
+    },
+    {
+      $sort: {
+        createdAt: -1
+      }
+    },
+    { $skip: +skip },
+    { $limit: +limit }
+  ]);
 
 	res.json({
 		data: tracks
@@ -208,11 +251,11 @@ export const putTrackLike = async (req: Request, res: Response, next: NextFuncti
 		throw new ApplicationError('Track not found', 404);
 	}
 
-	if (track.author == user.id) {
-		return res.json({
-			data: true
-		})
-	}
+	// if (track.author == user.id) {
+	// 	return res.json({
+	// 		data: true
+	// 	})
+	// }
 
 	const liked = track.liked.includes(user._id);
 

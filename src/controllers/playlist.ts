@@ -12,7 +12,6 @@ import { Types } from 'mongoose';
  */
 export const getPlaylist = async (req: Request, res: Response) => {
 	const { id } = req.params;
-	console.log('--- id', id);
 	const user = res.locals.user;
 
 	const playlist = await Playlist.aggregate([
@@ -38,7 +37,10 @@ export const getPlaylist = async (req: Request, res: Response) => {
         'author.email': 0,
         'tracks': 0,
       }
-    },
+		},
+		{
+			$unwind: '$author'
+		},
 		{
 			$addFields: {
 				liked: {
@@ -46,7 +48,7 @@ export const getPlaylist = async (req: Request, res: Response) => {
 				},
 			},
 		},
-	])
+	]);
 
 	res.json({
 		data: playlist
@@ -188,11 +190,11 @@ export const putPlaylistLike = async (req: Request, res: Response, next: NextFun
 		throw new ApplicationError('Playlist not found', 404);
 	}
 
-	if (playlist.author == user.id) {
-		return res.json({
-			data: true
-		})
-	}
+	// if (playlist.author == user.id) {
+	// 	return res.json({
+	// 		data: true
+	// 	})
+	// }
 
 	const liked = playlist.liked.includes(user._id);
 

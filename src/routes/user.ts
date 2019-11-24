@@ -15,5 +15,11 @@ user.post('/login', asyncWrapper(userController.postLogin));
 user.post('/signup', asyncWrapper(userController.postSignup));
 
 user.put('/user/like/:id', authGuard, asyncWrapper(userController.putAuthorLike));
+user.get('/test-api', (req, res) => {
+	console.log('--- test-api', );
+	res.send({
+		messsage: 'OKey any'
+	})
+});
 
 export default user;

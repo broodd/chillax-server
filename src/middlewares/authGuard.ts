@@ -6,12 +6,12 @@ import { User, IUser } from '../models/User';
 import logger from '../util/logger';
 
 export default (req: Request, res: Response, next: NextFunction) => {
-  let token: string = req.headers['authorization'].slice(7);
+  let token: string = req.headers['authorization'];
 
   if (token) {
     if (token.includes('Bearer ')) {
 			token = token.split(' ')[1];
-    }
+		}
 
     jwt.verify(token, JWT_SECRET, async (err,  decoded: any) => {
 			if (err) {
