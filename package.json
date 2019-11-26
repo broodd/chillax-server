@@ -6,7 +6,7 @@
   "author": "Svyat Broodd",
   "license": "ISC",
   "scripts": {
-		"low-start": "node dist/server.js",
+    "low-start": "node dist/server.js",
     "start": "npm run serve",
     "build": "npm run build-ts && npm run tslint",
     "serve": "NODE_ENV=production node dist/server.js",
@@ -36,9 +36,9 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
-		"@types/compression": "^1.0.1",
-		"@types/lusca": "^1.6.1",
-		"@types/validator": "^10.11.3",
+    "@types/compression": "^1.0.1",
+    "@types/lusca": "^1.6.1",
+    "@types/validator": "^10.11.3",
     "@types/bcrypt-nodejs": "0.0.30",
     "@types/dotenv": "^6.1.0",
     "@types/errorhandler": "0.0.32",

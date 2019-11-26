@@ -89,11 +89,13 @@ app.use(multer);
 import user from './routes/user';
 import playlist from './routes/playlist';
 import track from './routes/track';
+import template from './routes/template';
 import upload from './routes/upload';
 
 app.use(user);
 app.use(playlist);
 app.use(track);
+app.use(template);
 app.use(upload);
 
 /**

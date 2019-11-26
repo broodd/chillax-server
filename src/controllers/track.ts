@@ -167,7 +167,7 @@ export const getTracksByAuthor = async (req: Request, res: Response) => {
 		},
 		{
 			$unwind: '$author'
-		}
+		},
     {
       $addFields: {
         liked: {

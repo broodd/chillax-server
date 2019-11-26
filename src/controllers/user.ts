@@ -32,8 +32,6 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
 	const { email, password } = req.body;
-
-	console.log('--- email, password', email, password);
 	let errors = [];
 
 	if (!email || !isEmail(email)) {
@@ -87,13 +85,13 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 	let errors = [];
 
 	if (!name || isEmpty(name)) {
-		errors.push('Name is not valid')
+		errors.push('Name is not valid');
 	}
 	if (!email || !isEmail(email)) {
-		errors.push('Email is not valid')
+		errors.push('Email is not valid');
 	}
 	if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
-		errors.push('Password to short')
+		errors.push('Password to short');
 	}
 
 	if (!!errors.length) {
@@ -111,7 +109,8 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 		password,
 		profile: {
 			name: 'som'
-		}
+		},
+		role: 'CLIENT'
 	});
 
 	const token = jwt.sign({
