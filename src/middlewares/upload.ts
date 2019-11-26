@@ -3,7 +3,7 @@ import multer from 'multer';
 
 const storage = multer.diskStorage({
 	destination: (req: Request, file: any, cb: CallableFunction) => {
-		cb(null, 'tracks');
+		cb(null, 'static/audio');
 	},
 	filename: (req: Request, file: any, cb: CallableFunction) => {
 		const date = new Date().toISOString().replace(/:/g, '_');

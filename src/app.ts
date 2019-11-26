@@ -45,7 +45,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(lusca.xframe('SAMEORIGIN'));
 app.use(lusca.xssProtection(true));
-app.use('/static-tracks', express.static('tracks'));
+app.use('/static', express.static('static'));
 
 /**
  * maybe need it later
