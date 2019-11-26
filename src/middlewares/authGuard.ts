@@ -21,6 +21,9 @@ export default (req: Request, res: Response, next: NextFunction) => {
         res.locals.token = decoded;
 
         const user: IUser = await User.findById(decoded.userId);
+        if (!user) {
+          throw new ApplicationError('User not found', 401);
+        }
         res.locals.user = user;
         return next();
       }

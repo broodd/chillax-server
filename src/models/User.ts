@@ -7,6 +7,7 @@ export type IUser = mongoose.Document & {
     password: string;
     passwordResetToken: string;
     passwordResetExpires: Date;
+    role: string;
 
     profile: {
         name: string;
@@ -39,6 +40,7 @@ const userSchema = new mongoose.Schema({
 		},
     passwordResetToken: String,
     passwordResetExpires: Date,
+    role: String,
 
     profile: {
         name: String,
