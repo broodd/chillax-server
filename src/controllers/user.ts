@@ -48,7 +48,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 	}
 
 	if (!!errors.length) {
-		throw new ApplicationError(errors, 401);
+		throw new ApplicationError(errors, 400);
 	}
 
 	const user = await User.findOne({ email }, {
@@ -56,7 +56,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 	});
 
 	if (!user) {
-		throw new ApplicationError('User not found', 401)
+		throw new ApplicationError('User not found', 404)
 	}
 
 	const passwordCheck = bcrypt.compareSync(password, user.password);
@@ -72,7 +72,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 			data: user
 		});
 	} else {
-		throw new ApplicationError('Account not found.', 401);
+		throw new ApplicationError('Account not found.', 404);
 	}
 };
 
@@ -95,13 +95,13 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 	}
 
 	if (!!errors.length) {
-		throw new ApplicationError(errors, 401);
+		throw new ApplicationError(errors, 400);
 	}
 
 	const existingUser = await User.findOne({ email: req.body.email });
 
 	if (existingUser) {
-		throw new ApplicationError('Account with that email address already exists.', 401);
+		throw new ApplicationError('Account with that email address already exists.', 403);
 	}
 
 	const user: IUser = await User.create({
