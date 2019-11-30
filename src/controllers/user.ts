@@ -65,7 +65,9 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 		const token = jwt.sign({
 			userId: user._id,
 			email: user.email
-		}, JWT_SECRET, {});
+		}, JWT_SECRET, {
+			expiresIn: '7d'
+		});
 
 		return res.status(200).send({
 			token: `Bearer ${token}`,
@@ -116,7 +118,9 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 	const token = jwt.sign({
 		userId: user._id,
 		email: user.email
-	}, JWT_SECRET, {});
+	}, JWT_SECRET, {
+		expiresIn: '7d'
+	});
 
 	return res.json({
 		token: `Bearer ${token}`,
