@@ -41,7 +41,7 @@ export const putUpload = async (req: Request, res: Response, next: NextFunction)
 		liked: [user._id]
 	});
 
-	await playlist.update({
+	await playlist.updateOne({
 		$push: {
 			tracks: track._id
 		}
