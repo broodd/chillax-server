@@ -10,6 +10,11 @@ export const putUpload = async (req: Request, res: Response, next: NextFunction)
 	const { name, playlistId } = req.body;
 	let errors = [];
 
+	logger.debug('req body', req.body);
+	logger.debug('req body', req.body.audio);
+	logger.debug('req headers', req.headers);
+	logger.debug('req file', req.file);
+
 	if (!req.file) {
 		errors.push('File is empty');
 	}
