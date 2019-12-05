@@ -91,16 +91,47 @@ export const getPlaylists = async (req: Request, res: Response) => {
  * Get loved playlists
  */
 export const getPlaylistsLiked = async (req: Request, res: Response) => {
-	const _id = res.locals.user._id;
-	const user: IUser = await User.findById(_id)
-		.populate({
-			path: 'likedPlaylists',
-			// select: 'likedPlaylists',
-		});
+	const { page = 1, limit = 10 } = req.query;
+	const skip = (page - 1) * limit;
+	const user = res.locals.user;
+
+	const playlists = await Playlist.aggregate([
+    {
+      $match: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        }
+      }
+    },
+    {
+      $addFields: {
+        liked: true
+      }
+    },
+    {
+      $sort: {
+        createdAt: -1
+      }
+    },
+    { $skip: +skip },
+    { $limit: +limit }
+  ]);
 
 	res.json({
-		data: user.likedPlaylists
+		data: playlists
 	});
+	
+	
+	// const _id = res.locals.user._id;
+	// const user: IUser = await User.findById(_id)
+	// 	.populate({
+	// 		path: 'likedPlaylists',
+	// 		// select: 'likedPlaylists',
+	// 	});
+
+	// res.json({
+	// 	data: user.likedPlaylists
+	// });
 };
 
 /**

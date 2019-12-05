@@ -87,13 +87,22 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 	let errors = [];
 
 	if (!name || isEmpty(name)) {
-		errors.push('Name is not valid');
+		errors.push({
+      field: 'name',
+      message: 'Name is not valid'
+    });
 	}
 	if (!email || !isEmail(email)) {
-		errors.push('Email is not valid');
+		errors.push({
+      field: 'email',
+      message: 'Email is not valid'
+    });
 	}
 	if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
-		errors.push('Password to short');
+		errors.push({
+      field: 'password',
+      message: 'Password to short'
+    });
 	}
 
 	if (!!errors.length) {
