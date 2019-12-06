@@ -120,16 +120,55 @@ export const getTracksInPlaylist = async (req: Request, res: Response) => {
  * Get loved tracks
  */
 export const getTracksLiked = async (req: Request, res: Response) => {
-	const id = res.locals.user.id;
-	const user: IUser = await User.findById(id)
-		.populate({
-			path: 'track',
-			select: 'likedTracks',
-		});
+	const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const user = res.locals.user;
 
-	res.json({
-		data: user.likedTracks
-	});
+  const tracks = await Track.aggregate([
+		{
+			$match: {
+				liked: {
+					$in: [Types.ObjectId(user.id), '$liked']
+				}
+			}
+		},
+    {
+      $addFields: { 
+        liked: true
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'author',
+        foreignField: '_id',
+        as: 'author'
+      }
+    },
+    {
+      $project: {
+        'author.likedPlaylists': 0,
+        'author.likedTracks': 0,
+        'author.followers': 0,
+        'author.password': 0,
+        'author.email': 0
+      }
+    },
+    {
+      $unwind: '$author'
+    },
+    {
+      $sort: {
+        createdAt: -1
+      }
+    },
+    { $skip: +skip },
+    { $limit: +limit }
+  ]);
+
+  res.json({
+    data: tracks
+  });
 };
 
 /**
