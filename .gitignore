@@ -17,6 +17,9 @@ Thumbs.db
 # Ignore built ts files
 dist/**/*
 
+# Test reports
+coverage/**/*
+
 # Tracks
 static/**/*
 

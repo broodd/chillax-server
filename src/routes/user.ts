@@ -19,7 +19,7 @@ user.get('/test-api', (req, res) => {
 	console.log('--- test-api', );
 	res.send({
 		messsage: 'OKey any'
-	})
+	});
 });
 
 export default user;

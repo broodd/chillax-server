@@ -79,7 +79,7 @@ export const getPlaylists = async (req: Request, res: Response) => {
 		},
 		{ $skip: +skip },
 		{ $limit: +limit }
-	])
+	]);
 
 	res.json({
 		data: playlists
@@ -120,18 +120,6 @@ export const getPlaylistsLiked = async (req: Request, res: Response) => {
 	res.json({
 		data: playlists
 	});
-	
-	
-	// const _id = res.locals.user._id;
-	// const user: IUser = await User.findById(_id)
-	// 	.populate({
-	// 		path: 'likedPlaylists',
-	// 		// select: 'likedPlaylists',
-	// 	});
-
-	// res.json({
-	// 	data: user.likedPlaylists
-	// });
 };
 
 /**
@@ -164,7 +152,7 @@ export const getPlaylistsByAuthor = async (req: Request, res: Response) => {
 		},
 		{ $skip: +skip },
 		{ $limit: +limit }
-	])
+	]);
 
 	res.json({
 		data: playlists
@@ -178,13 +166,13 @@ export const getPlaylistsByAuthor = async (req: Request, res: Response) => {
 export const postPlaylist = async (req: Request, res: Response, next: NextFunction) => {
 	const user = res.locals.user;
 	const { name, img } = req.body;
-	let errors = [];
+	const errors = [];
 
 	if (!name || isEmpty(name)) {
-		errors.push('Name is not valid')
+		errors.push('Name is not valid');
 	}
 	if (!img || isEmpty(img)) {
-		errors.push('Image is not valid')
+		errors.push('Image is not valid');
 	}
 
 	if (!!errors.length) {
