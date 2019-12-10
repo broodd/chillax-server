@@ -133,7 +133,7 @@ export const getTracksLiked = async (req: Request, res: Response) => {
 			}
 		},
     {
-      $addFields: { 
+      $addFields: {
         liked: true
       }
     },
@@ -237,17 +237,17 @@ export const postTrack = async (req: Request, res: Response, next: NextFunction)
 	const { id } = req.params;
 	const user = res.locals.user;
 	const { name } = req.body;
-	let errors = [];
+	const errors = [];
 
 	if (!name || isEmpty(name)) {
-		errors.push('Name is not valid')
+		errors.push('Name is not valid');
 	}
 
 	if (!!errors.length) {
 		throw new ApplicationError(errors[0], 404);
 	}
 
-	const playlist: IPlaylist = await Playlist.findById(id)
+	const playlist: IPlaylist = await Playlist.findById(id);
 
 	if (!playlist) {
 		throw new ApplicationError('Playlist not found', 404);
@@ -265,7 +265,7 @@ export const postTrack = async (req: Request, res: Response, next: NextFunction)
 		$push: {
 			tracks: track._id
 		}
-	})
+	});
 
 	return res.json({
 		data: track

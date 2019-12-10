@@ -32,7 +32,7 @@ export const getTemplates = async (req: Request, res: Response) => {
 export const postTemplate = async (req: Request, res: Response, next: NextFunction) => {
 	const user = res.locals.user;
 	const { name, img } = req.body;
-	let errors = [];
+	const errors = [];
 
 	if (!name || isEmpty(name)) {
 		errors.push('Name is not valid');

@@ -76,7 +76,7 @@ const userSchema = new mongoose.Schema({
 }, {
 	toObject: { virtuals: true },
 	toJSON: { virtuals: true },
-	timestamps: true 
+	timestamps: true
 });
 
 userSchema.virtual('followersCount', {
@@ -84,7 +84,7 @@ userSchema.virtual('followersCount', {
 	localField: 'followers',
 	foreignField: '_id',
 	count: true
-})
+});
 
 
 /**
