@@ -14,8 +14,8 @@ This is a node.js server for mobile rellax app - chillax.
 
 
 #### There are 2 users levels:
-- **User:** Can delete chat messages
-- **Administrator:** All the above plus send global alerts and promote/demote users
+- **User:** Can listen & uploading autio
+- **Administrator:** All the above plus add playlists templates
 
 ---
 
@@ -37,4 +37,5 @@ Run script:
 - **npm run watch** - for run app in development mode & watch changes in files
 - **npm run test** - for run testing :shipit:
 
+- Postman collection https://www.getpostman.com/collections/27d7fc7e9a40b8f64c3e
 ---
