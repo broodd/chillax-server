@@ -21,7 +21,7 @@ dist/**/*
 coverage/**/*
 
 # Tracks
-static/audio/*
+# static/audio/*
 
 # Other
 debug.log
