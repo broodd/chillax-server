@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
+import path from 'path';
 
 const storage = multer.diskStorage({
 	destination: (req: Request, file: any, cb: CallableFunction) => {
-		cb(undefined, 'static/audio');
+		cb(undefined, path.join(__dirname, '../../static/audio'));
 	},
 	filename: (req: Request, file: any, cb: CallableFunction) => {
 		const date = new Date().toISOString().replace(/:/g, '_');
