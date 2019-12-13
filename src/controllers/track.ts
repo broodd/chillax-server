@@ -331,3 +331,26 @@ export const putTrackLike = async (req: Request, res: Response, next: NextFuncti
 		data: !liked
 	});
 };
+
+/**
+ * DELETE /playlist/l:id
+ */
+export const deleteTrack = async (req: Request, res: Response, next: NextFunction) => {
+  const user = res.locals.user;
+  const { id } = req.params;
+
+  const track: ITrack = await Track.findById(id);
+
+  if (!track) {
+    throw new ApplicationError('Playlist not found', 404);
+  }
+  if (track.author != user._id && user.role != 'ADMIN') {
+    throw new ApplicationError('Dont have permission', 403);
+  }
+
+  await track.remove();
+
+  return res.json({
+    data: track
+  });
+};

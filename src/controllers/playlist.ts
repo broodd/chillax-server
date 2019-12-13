@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Playlist, IPlaylist } from '../models/Playlist';
+import { Track, ITrack } from '../models/Track';
 import { User, IUser } from '../models/User';
 import { isEmpty } from 'validator';
 import { ApplicationError } from '../util/error-handler';
@@ -245,3 +246,30 @@ export const putPlaylistLike = async (req: Request, res: Response, next: NextFun
 		data: !liked
 	});
 };
+
+/**
+ * DELETE /playlist/l:id
+ */
+export const deletePlaylist = async (req: Request, res: Response, next: NextFunction) => {
+	const user = res.locals.user;
+	const { id } = req.params;
+
+	const playlist: IPlaylist = await Playlist.findById(id);
+
+	if (!playlist) {
+		throw new ApplicationError('Playlist not found', 404);
+	}
+	if (playlist.author != user._id && user.role != 'ADMIN') {
+		throw new ApplicationError('Dont have permission', 403);
+	}
+
+	await playlist.remove();
+	await Track.deleteMany({
+		playlist: playlist._id
+	});
+
+	return res.json({
+		data: playlist
+	});
+};
+

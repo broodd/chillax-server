@@ -7,6 +7,7 @@ export type ITrack = mongoose.Document & {
 		src: string;
 		playlist: string;
 		liked: string[];
+		order: number;
 };
 
 const trackSchema = new mongoose.Schema({
@@ -38,7 +39,8 @@ const trackSchema = new mongoose.Schema({
 				ref: 'User',
 			}],
 			select: false
-		}
+		},
+		order: Number
 }, {
 	toObject: { virtuals: true },
 	toJSON: { virtuals: true },

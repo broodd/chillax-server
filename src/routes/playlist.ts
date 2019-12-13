@@ -18,4 +18,6 @@ playlist.post('/playlist', authGuard, asyncWrapper(playlistController.postPlayli
 
 playlist.put('/playlist/like/:id', authGuard, asyncWrapper(playlistController.putPlaylistLike));
 
+playlist.delete('/playlist/:id', authGuard, asyncWrapper(playlistController.deletePlaylist));
+
 export default playlist;
