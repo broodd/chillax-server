@@ -70,10 +70,15 @@ export const getPlaylists = async (req: Request, res: Response) => {
 				liked: {
 					$in: [Types.ObjectId(user.id), '$liked']
 				},
+				likedLength: {
+					$size: '$liked'
+				}
 			},
 		},
 		{
 			$sort: {
+				likedLength: -1,
+				liked: -1,
 				createdAt: -1
 			}
 		},
@@ -143,10 +148,15 @@ export const getPlaylistsByAuthor = async (req: Request, res: Response) => {
 				liked: {
 					$in: [Types.ObjectId(user.id), '$liked']
 				},
+				likedLength: {
+					$size: '$liked'
+				}
 			},
 		},
 		{
 			$sort: {
+				likedLength: -1,
+				liked: -1,
 				createdAt: -1
 			}
 		},
@@ -184,7 +194,7 @@ export const postPlaylist = async (req: Request, res: Response, next: NextFuncti
 		img,
 		author: user._id,
 		tracks: [],
-		liked: [user._id]
+		liked: []
 	});
 
 	return res.json({

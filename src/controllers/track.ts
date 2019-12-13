@@ -21,6 +21,9 @@ export const getTracks = async (req: Request, res: Response) => {
       $addFields: {
         liked: {
           $in: [Types.ObjectId(user.id), '$liked']
+        },
+        likedLength: {
+          $size: '$liked'
         }
       }
     },
@@ -46,6 +49,8 @@ export const getTracks = async (req: Request, res: Response) => {
     },
     {
       $sort: {
+        likedLength: -1,
+        liked: -1,
         createdAt: -1
       }
     },
@@ -78,6 +83,9 @@ export const getTracksInPlaylist = async (req: Request, res: Response) => {
       $addFields: {
         liked: {
           $in: [Types.ObjectId(user.id), '$liked']
+        },
+				likedLength: {
+          $size: '$liked'
         }
       }
     },
@@ -103,6 +111,8 @@ export const getTracksInPlaylist = async (req: Request, res: Response) => {
     },
     {
       $sort: {
+        likedLength: -1,
+        liked: -1,
         createdAt: -1
       }
     },
@@ -211,11 +221,16 @@ export const getTracksByAuthor = async (req: Request, res: Response) => {
       $addFields: {
         liked: {
           $in: [Types.ObjectId(user.id), '$liked']
+        },
+        likedLength: {
+          $size: '$liked'
         }
       }
     },
     {
       $sort: {
+        likedLength: -1,
+        liked: -1,
         createdAt: -1
       }
     },
@@ -258,7 +273,7 @@ export const postTrack = async (req: Request, res: Response, next: NextFunction)
 		img: playlist.img,
 		author: user._id,
 		playlist: playlist._id,
-		liked: [user._id]
+		liked: []
 	});
 
 	await playlist.update({

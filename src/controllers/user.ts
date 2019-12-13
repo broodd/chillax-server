@@ -27,6 +27,20 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
 
 
 /**
+ * GET /users
+ * Get user info.
+ */
+export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+	const users: IUser[] = await User.find()
+		.populate('followersCount');
+
+	return res.json({
+		data: users
+	});
+};
+
+
+/**
  * POST /login
  * Sign in using email and password.
  */
@@ -66,7 +80,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 			userId: user._id,
 			email: user.email
 		}, JWT_SECRET, {
-			expiresIn: '7d'
+			expiresIn: '10y'
 		});
 
 		return res.status(200).send({
@@ -119,7 +133,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 		email,
 		password,
 		profile: {
-			name: 'som'
+			name
 		},
 		role: 'CLIENT'
 	});
@@ -128,7 +142,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 		userId: user._id,
 		email: user.email
 	}, JWT_SECRET, {
-		expiresIn: '7d'
+		expiresIn: '10y'
 	});
 
 	return res.json({
