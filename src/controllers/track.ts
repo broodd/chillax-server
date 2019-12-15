@@ -248,44 +248,44 @@ export const getTracksByAuthor = async (req: Request, res: Response) => {
  * POST /track/:id
  * Add track to playlist
  */
-export const postTrack = async (req: Request, res: Response, next: NextFunction) => {
-	const { id } = req.params;
-	const user = res.locals.user;
-	const { name } = req.body;
-	const errors = [];
+// export const postTrack = async (req: Request, res: Response, next: NextFunction) => {
+// 	const { id } = req.params;
+// 	const user = res.locals.user;
+// 	const { name } = req.body;
+// 	const errors = [];
 
-	if (!name || isEmpty(name)) {
-		errors.push('Name is not valid');
-	}
+// 	if (!name || isEmpty(name)) {
+// 		errors.push('Name is not valid');
+// 	}
 
-	if (!!errors.length) {
-		throw new ApplicationError(errors[0], 404);
-	}
+// 	if (!!errors.length) {
+// 		throw new ApplicationError(errors[0], 404);
+// 	}
 
-	const playlist: IPlaylist = await Playlist.findById(id);
+// 	const playlist: IPlaylist = await Playlist.findById(id);
 
-	if (!playlist) {
-		throw new ApplicationError('Playlist not found', 404);
-	}
+// 	if (!playlist) {
+// 		throw new ApplicationError('Playlist not found', 404);
+// 	}
 
-	const track: ITrack = await Track.create({
-		name,
-		img: playlist.img,
-		author: user._id,
-		playlist: playlist._id,
-		liked: []
-	});
+// 	const track: ITrack = await Track.create({
+// 		name,
+// 		img: playlist.img,
+// 		author: user._id,
+// 		playlist: playlist._id,
+// 		liked: []
+// 	});
 
-	await playlist.update({
-		$push: {
-			tracks: track._id
-		}
-	});
+// 	await playlist.update({
+// 		$push: {
+// 			tracks: track._id
+// 		}
+// 	});
 
-	return res.json({
-		data: track
-	});
-};
+// 	return res.json({
+// 		data: track
+// 	});
+// };
 
 
 /**
@@ -333,7 +333,7 @@ export const putTrackLike = async (req: Request, res: Response, next: NextFuncti
 };
 
 /**
- * DELETE /playlist/l:id
+ * DELETE /track/l:id
  */
 export const deleteTrack = async (req: Request, res: Response, next: NextFunction) => {
   const user = res.locals.user;
@@ -342,15 +342,57 @@ export const deleteTrack = async (req: Request, res: Response, next: NextFunctio
   const track: ITrack = await Track.findById(id);
 
   if (!track) {
-    throw new ApplicationError('Playlist not found', 404);
+    throw new ApplicationError('Track not found', 404);
   }
   if (track.author != user._id && user.role != 'ADMIN') {
     throw new ApplicationError('Dont have permission', 403);
-  }
+	}
+	
+	await Playlist.updateOne({
+		_id: track.playlist
+	},
+	{
+		$pull: {
+			tracks: track._id
+		}
+	})
 
   await track.remove();
 
   return res.json({
     data: track
   });
+};
+
+/**
+ * PUT /track/:id
+ * Update track
+ */
+export const putTrackUpdate = async (req: Request, res: Response, next: NextFunction) => {
+	const user = res.locals.user;
+	const { name, img } = req.body;
+	const { id } = req.params;
+
+	const track: ITrack = await Track.findById(id);
+
+	if (!track) {
+    throw new ApplicationError('Track not found', 404);
+	}
+	if (track.author != user._id && user.role != 'ADMIN') {
+    throw new ApplicationError('Dont have permission', 403);
+  }
+	
+	if (name) {
+		track.name = name;
+	}
+
+	if (img) {
+		track.img = img;
+	}
+
+	await track.save();
+
+	return res.json({
+		data: track
+	});
 };

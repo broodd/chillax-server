@@ -18,4 +18,6 @@ track.post('/track/:id', authGuard, asyncWrapper(trackController.postTrack));
 
 track.put('/track/like/:id', authGuard, asyncWrapper(trackController.putTrackLike));
 
+track.delete('/track/:id', authGuard, asyncWrapper(trackController.deleteTrack));
+
 export default track;
