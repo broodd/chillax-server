@@ -14,9 +14,9 @@ track.get('/tracks/playlist/:id', authGuard, asyncWrapper(trackController.getTra
 track.get('/tracks/liked', authGuard, asyncWrapper(trackController.getTracksLiked));
 track.get('/tracks/author/:id', authGuard, asyncWrapper(trackController.getTracksByAuthor));
 
-track.post('/track/:id', authGuard, asyncWrapper(trackController.postTrack));
-
 track.put('/track/like/:id', authGuard, asyncWrapper(trackController.putTrackLike));
+track.put('/audio-file', authGuard, asyncWrapper(trackController.putTrackUpload));
+track.put('/track/:id', authGuard, asyncWrapper(trackController.putTrackUpdate));
 
 track.delete('/track/:id', authGuard, asyncWrapper(trackController.deleteTrack));
 
