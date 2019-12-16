@@ -16,6 +16,7 @@ playlist.get('/playlists/author/:id', authGuard, asyncWrapper(playlistController
 
 playlist.post('/playlist', authGuard, asyncWrapper(playlistController.postPlaylist));
 
+playlist.put('/playlist/:id', authGuard, asyncWrapper(playlistController.putPlaylistUpdate));
 playlist.put('/playlist/like/:id', authGuard, asyncWrapper(playlistController.putPlaylistLike));
 
 playlist.delete('/playlist/:id', authGuard, asyncWrapper(playlistController.deletePlaylist));

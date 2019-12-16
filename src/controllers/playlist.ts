@@ -273,3 +273,35 @@ export const deletePlaylist = async (req: Request, res: Response, next: NextFunc
 	});
 };
 
+/**
+ * PUT /playlist/:id
+ * Update playlist
+ */
+export const putPlaylistUpdate = async (req: Request, res: Response, next: NextFunction) => {
+	const user = res.locals.user;
+	const { name, img } = req.body;
+	const { id } = req.params;
+
+	const playlist: IPlaylist = await Playlist.findById(id);
+
+	if (!playlist) {
+    throw new ApplicationError('Playlist not found', 404);
+	}
+	if (playlist.author != user._id && user.role != 'ADMIN') {
+    throw new ApplicationError('Dont have permission', 403);
+  }
+	
+	if (name) {
+		playlist.name = name;
+	}
+
+	if (img) {
+		playlist.img = img;
+	}
+
+	await playlist.save();
+
+	return res.json({
+		data: playlist
+	});
+};
