@@ -302,7 +302,7 @@ export const deleteTrack = async (req: Request, res: Response, next: NextFunctio
   if (track.author != user._id && user.role != 'ADMIN') {
     throw new ApplicationError('Dont have permission', 403);
 	}
-	
+
 	await Playlist.updateOne({
 		_id: track.playlist
 	},
@@ -310,7 +310,7 @@ export const deleteTrack = async (req: Request, res: Response, next: NextFunctio
 		$pull: {
 			tracks: track._id
 		}
-	})
+	});
 
   await track.remove();
 

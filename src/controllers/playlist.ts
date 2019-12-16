@@ -290,7 +290,7 @@ export const putPlaylistUpdate = async (req: Request, res: Response, next: NextF
 	if (playlist.author != user._id && user.role != 'ADMIN') {
     throw new ApplicationError('Dont have permission', 403);
   }
-	
+
 	if (name) {
 		playlist.name = name;
 	}
