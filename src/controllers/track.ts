@@ -12,11 +12,11 @@ import logger from '../util/logger';
  * Get popular tracks
  */
 export const getTracks = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
-	const skip = (page - 1) * limit;
-	const user = res.locals.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const user = res.locals.user;
 
-	const tracks = await Track.aggregate([
+  const tracks = await Track.aggregate([
     {
       $addFields: {
         liked: {
@@ -58,9 +58,9 @@ export const getTracks = async (req: Request, res: Response) => {
     { $limit: +limit }
   ]);
 
-	res.json({
-		data: tracks
-	});
+  res.json({
+    data: tracks
+  });
 };
 
 /**
@@ -68,12 +68,12 @@ export const getTracks = async (req: Request, res: Response) => {
  * Get tracks in playlist
  */
 export const getTracksInPlaylist = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
-	const skip = (page - 1) * limit;
-	const { id } = req.params;
-	const user = res.locals.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const { id } = req.params;
+  const user = res.locals.user;
 
-	const tracks = await Track.aggregate([
+  const tracks = await Track.aggregate([
     {
       $match: {
         playlist: Types.ObjectId(id)
@@ -84,7 +84,7 @@ export const getTracksInPlaylist = async (req: Request, res: Response) => {
         liked: {
           $in: [Types.ObjectId(user.id), '$liked']
         },
-				likedLength: {
+        likedLength: {
           $size: '$liked'
         }
       }
@@ -120,9 +120,9 @@ export const getTracksInPlaylist = async (req: Request, res: Response) => {
     { $limit: +limit }
   ]);
 
-	res.json({
-		data: tracks
-	});
+  res.json({
+    data: tracks
+  });
 };
 
 /**
@@ -130,18 +130,18 @@ export const getTracksInPlaylist = async (req: Request, res: Response) => {
  * Get loved tracks
  */
 export const getTracksLiked = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
   const user = res.locals.user;
 
   const tracks = await Track.aggregate([
-		{
-			$match: {
-				liked: {
-					$in: [Types.ObjectId(user.id), '$liked']
-				}
-			}
-		},
+    {
+      $match: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        }
+      }
+    },
     {
       $addFields: {
         liked: true
@@ -186,12 +186,12 @@ export const getTracksLiked = async (req: Request, res: Response) => {
  * Get author tracks
  */
 export const getTracksByAuthor = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
-	const skip = (page - 1) * limit;
-	const { id } = req.params;
-	const user = res.locals.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const { id } = req.params;
+  const user = res.locals.user;
 
-	const tracks = await Track.aggregate([
+  const tracks = await Track.aggregate([
     {
       $match: {
         author: Types.ObjectId(id)
@@ -213,10 +213,10 @@ export const getTracksByAuthor = async (req: Request, res: Response) => {
         'author.password': 0,
         'author.email': 0
       }
-		},
-		{
-			$unwind: '$author'
-		},
+    },
+    {
+      $unwind: '$author'
+    },
     {
       $addFields: {
         liked: {
@@ -238,9 +238,9 @@ export const getTracksByAuthor = async (req: Request, res: Response) => {
     { $limit: +limit }
   ]);
 
-	res.json({
-		data: tracks
-	});
+  res.json({
+    data: tracks
+  });
 };
 
 /**
@@ -248,43 +248,43 @@ export const getTracksByAuthor = async (req: Request, res: Response) => {
  * Like / unlike track
  */
 export const putTrackLike = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { id } = req.params;
+  const user = res.locals.user;
+  const { id } = req.params;
 
-	const track: ITrack = await Track.findById(id, {
-		liked: 1,
-		author: 1
-	});
+  const track: ITrack = await Track.findById(id, {
+    liked: 1,
+    author: 1
+  });
 
-	if (!track) {
-		throw new ApplicationError('Track not found', 404);
-	}
+  if (!track) {
+    throw new ApplicationError('Track not found', 404);
+  }
 
-	// if (track.author == user.id) {
-	// 	return res.json({
-	// 		data: true
-	// 	})
-	// }
+  // if (track.author == user.id) {
+  // 	return res.json({
+  // 		data: true
+  // 	})
+  // }
 
-	const liked = track.liked.includes(user._id);
+  const liked = track.liked.includes(user._id);
 
-	if (liked) {
-		await track.updateOne({
-			$pull: {
-				liked: user.id
-			}
-		});
-	} else {
-		await track.updateOne({
-			$addToSet: {
-				liked: user.id
-			}
-		});
-	}
+  if (liked) {
+    await track.updateOne({
+      $pull: {
+        liked: user.id
+      }
+    });
+  } else {
+    await track.updateOne({
+      $addToSet: {
+        liked: user.id
+      }
+    });
+  }
 
-	return res.json({
-		data: !liked
-	});
+  return res.json({
+    data: !liked
+  });
 };
 
 /**
@@ -301,16 +301,16 @@ export const deleteTrack = async (req: Request, res: Response, next: NextFunctio
   }
   if (track.author != user._id && user.role != 'ADMIN') {
     throw new ApplicationError('Dont have permission', 403);
-	}
+  }
 
-	await Playlist.updateOne({
-		_id: track.playlist
-	},
-	{
-		$pull: {
-			tracks: track._id
-		}
-	});
+  await Playlist.updateOne({
+    _id: track.playlist
+  },
+  {
+    $pull: {
+      tracks: track._id
+    }
+  });
 
   await track.remove();
 
@@ -371,25 +371,25 @@ export const putTrackUpload = async (req: Request, res: Response, next: NextFunc
  * Update track
  */
 export const putTrackUpdate = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { name, img, order } = req.body;
-	const { id } = req.params;
+  const user = res.locals.user;
+  const { name, img, order } = req.body;
+  const { id } = req.params;
 
-	const track: ITrack = await Track.findById(id);
+  const track: ITrack = await Track.findById(id);
 
-	if (!track) {
+  if (!track) {
     throw new ApplicationError('Track not found', 404);
-	}
-	if (track.author != user._id && user.role != 'ADMIN') {
+  }
+  if (track.author != user._id && user.role != 'ADMIN') {
     throw new ApplicationError('Dont have permission', 403);
   }
 
-	if (name) {
-		track.name = name;
-	}
+  if (name) {
+    track.name = name;
+  }
 
-	if (img) {
-		track.img = img;
+  if (img) {
+    track.img = img;
   }
 
   if (req.file) {
@@ -400,9 +400,9 @@ export const putTrackUpdate = async (req: Request, res: Response, next: NextFunc
     track.order = order;
   }
 
-	await track.save();
+  await track.save();
 
-	return res.json({
-		data: track
-	});
+  return res.json({
+    data: track
+  });
 };

@@ -12,17 +12,17 @@ import logger from '../util/logger';
  * Get user info.
  */
 export const getUserInfo = async (req: Request, res: Response, next: NextFunction) => {
-	const { id } = req.params;
-	const user: IUser = await User.findById(id)
-		.populate('followersCount');
+  const { id } = req.params;
+  const user: IUser = await User.findById(id)
+    .populate('followersCount');
 
-	if (!user) {
-		throw new ApplicationError('User not found', 404);
-	}
+  if (!user) {
+    throw new ApplicationError('User not found', 404);
+  }
 
-	return res.json({
-		data: user
-	});
+  return res.json({
+    data: user
+  });
 };
 
 
@@ -31,12 +31,12 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
  * Get user info.
  */
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
-	const users: IUser[] = await User.find()
-		.populate('followersCount');
+  const users: IUser[] = await User.find()
+    .populate('followersCount');
 
-	return res.json({
-		data: users
-	});
+  return res.json({
+    data: users
+  });
 };
 
 
@@ -45,51 +45,51 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
  * Sign in using email and password.
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
-	const { email, password } = req.body;
-	const errors = [];
+  const { email, password } = req.body;
+  const errors = [];
 
-	if (!email || !isEmail(email)) {
-		errors.push({
-			field: 'email',
-			message: 'Email is not valid'
-		});
-	}
-	if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
-		errors.push({
-			field: 'password',
+  if (!email || !isEmail(email)) {
+    errors.push({
+      field: 'email',
+      message: 'Email is not valid'
+    });
+  }
+  if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
+    errors.push({
+      field: 'password',
       message: 'Password to short'
     });
-	}
+  }
 
-	if (!!errors.length) {
-		throw new ApplicationError(errors, 400);
-	}
+  if (!!errors.length) {
+    throw new ApplicationError(errors, 400);
+  }
 
-	const user = await User.findOne({ email }, {
-		// password: 1
-	});
+  const user = await User.findOne({ email }, {
+    // password: 1
+  });
 
-	if (!user) {
-		throw new ApplicationError('User not found', 404);
-	}
+  if (!user) {
+    throw new ApplicationError('User not found', 404);
+  }
 
-	const passwordCheck = bcrypt.compareSync(password, user.password);
+  const passwordCheck = bcrypt.compareSync(password, user.password);
 
-	if (passwordCheck) {
-		const token = jwt.sign({
-			userId: user._id,
-			email: user.email
-		}, JWT_SECRET, {
-			expiresIn: '10y'
-		});
+  if (passwordCheck) {
+    const token = jwt.sign({
+      userId: user._id,
+      email: user.email
+    }, JWT_SECRET, {
+      expiresIn: '10y'
+    });
 
-		return res.status(200).send({
-			token: `Bearer ${token}`,
-			data: user
-		});
-	} else {
-		throw new ApplicationError('Account not found.', 404);
-	}
+    return res.status(200).send({
+      token: `Bearer ${token}`,
+      data: user
+    });
+  } else {
+    throw new ApplicationError('Account not found.', 404);
+  }
 };
 
 /**
@@ -97,58 +97,58 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
  * Create a new account.
  */
 export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
-	const { name, email, password } = req.body;
-	const errors = [];
+  const { name, email, password } = req.body;
+  const errors = [];
 
-	if (!name || isEmpty(name)) {
-		errors.push({
+  if (!name || isEmpty(name)) {
+    errors.push({
       field: 'name',
       message: 'Name is not valid'
     });
-	}
-	if (!email || !isEmail(email)) {
-		errors.push({
+  }
+  if (!email || !isEmail(email)) {
+    errors.push({
       field: 'email',
       message: 'Email is not valid'
     });
-	}
-	if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
-		errors.push({
+  }
+  if (!password || isEmpty(password) || !isLength(password, { min: 5 })) {
+    errors.push({
       field: 'password',
       message: 'Password to short'
     });
-	}
+  }
 
-	if (!!errors.length) {
-		throw new ApplicationError(errors, 400);
-	}
+  if (!!errors.length) {
+    throw new ApplicationError(errors, 400);
+  }
 
-	const existingUser = await User.findOne({ email: req.body.email });
+  const existingUser = await User.findOne({ email: req.body.email });
 
-	if (existingUser) {
-		throw new ApplicationError('Account with that email address already exists.', 403);
-	}
+  if (existingUser) {
+    throw new ApplicationError('Account with that email address already exists.', 403);
+  }
 
-	const user: IUser = await User.create({
-		email,
-		password,
-		profile: {
-			name
-		},
-		role: 'CLIENT'
-	});
+  const user: IUser = await User.create({
+    email,
+    password,
+    profile: {
+      name
+    },
+    role: 'CLIENT'
+  });
 
-	const token = jwt.sign({
-		userId: user._id,
-		email: user.email
-	}, JWT_SECRET, {
-		expiresIn: '10y'
-	});
+  const token = jwt.sign({
+    userId: user._id,
+    email: user.email
+  }, JWT_SECRET, {
+    expiresIn: '10y'
+  });
 
-	return res.json({
-		token: `Bearer ${token}`,
-		data: user
-	});
+  return res.json({
+    token: `Bearer ${token}`,
+    data: user
+  });
 };
 
 
@@ -157,38 +157,38 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
  * Like / unlike author
  */
 export const putAuthorLike = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { id } = req.params;
+  const user = res.locals.user;
+  const { id } = req.params;
 
-	if (user.id == id) {
-		throw new ApplicationError('Same user', 404);
-	}
+  if (user.id == id) {
+    throw new ApplicationError('Same user', 404);
+  }
 
-	const author: IUser = await User.findById(id, {
-		followers: 1
-	});
+  const author: IUser = await User.findById(id, {
+    followers: 1
+  });
 
-	if (!author) {
-		throw new ApplicationError('Author not found', 404);
-	}
+  if (!author) {
+    throw new ApplicationError('Author not found', 404);
+  }
 
-	const liked = author.followers.includes(user._id);
+  const liked = author.followers.includes(user._id);
 
-	if (liked) {
-		await author.updateOne({
-			$pull: {
-				followers: user.id
-			}
-		});
-	} else {
-		await author.updateOne({
-			$addToSet: {
-				followers: user.id
-			}
-		});
-	}
+  if (liked) {
+    await author.updateOne({
+      $pull: {
+        followers: user.id
+      }
+    });
+  } else {
+    await author.updateOne({
+      $addToSet: {
+        followers: user.id
+      }
+    });
+  }
 
-	return res.json({
-		data: !liked
-	});
+  return res.json({
+    data: !liked
+  });
 };
