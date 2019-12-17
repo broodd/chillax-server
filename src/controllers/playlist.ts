@@ -12,48 +12,48 @@ import { Types } from 'mongoose';
  * Get playlist
  */
 export const getPlaylist = async (req: Request, res: Response) => {
-	const { id } = req.params;
-	const user = res.locals.user;
+  const { id } = req.params;
+  const user = res.locals.user;
 
-	const playlist = await Playlist.aggregate([
-		{
-			$match: {
-				_id: Types.ObjectId(id)
-			}
-		},
-		{
-			$lookup: {
-				from: 'users',
-				localField: 'author',
-				foreignField: '_id',
-				as: 'author',
-			}
-		},
-		{
+  const playlist = await Playlist.aggregate([
+    {
+      $match: {
+        _id: Types.ObjectId(id)
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'author',
+        foreignField: '_id',
+        as: 'author',
+      }
+    },
+    {
       $project: {
-				'author.likedPlaylists': 0,
+        'author.likedPlaylists': 0,
         'author.likedTracks': 0,
         'author.followers': 0,
         'author.password': 0,
         'author.email': 0,
         'tracks': 0,
       }
-		},
-		{
-			$unwind: '$author'
-		},
-		{
-			$addFields: {
-				liked: {
-					$in: [Types.ObjectId(user.id), '$liked']
-				},
-			},
-		},
-	]);
+    },
+    {
+      $unwind: '$author'
+    },
+    {
+      $addFields: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        },
+      },
+    },
+  ]);
 
-	res.json({
-		data: playlist
-	});
+  res.json({
+    data: playlist
+  });
 };
 
 /**
@@ -61,35 +61,35 @@ export const getPlaylist = async (req: Request, res: Response) => {
  * Get popular playlists
  */
 export const getPlaylists = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
-	const skip = (page - 1) * limit;
-	const user = res.locals.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const user = res.locals.user;
 
-	const playlists = await Playlist.aggregate([
-		{
-			$addFields: {
-				liked: {
-					$in: [Types.ObjectId(user.id), '$liked']
-				},
-				likedLength: {
-					$size: '$liked'
-				}
-			},
-		},
-		{
-			$sort: {
-				likedLength: -1,
-				liked: -1,
-				createdAt: -1
-			}
-		},
-		{ $skip: +skip },
-		{ $limit: +limit }
-	]);
+  const playlists = await Playlist.aggregate([
+    {
+      $addFields: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        },
+        likedLength: {
+          $size: '$liked'
+        }
+      },
+    },
+    {
+      $sort: {
+        likedLength: -1,
+        liked: -1,
+        createdAt: -1
+      }
+    },
+    { $skip: +skip },
+    { $limit: +limit }
+  ]);
 
-	res.json({
-		data: playlists
-	});
+  res.json({
+    data: playlists
+  });
 };
 
 /**
@@ -97,11 +97,11 @@ export const getPlaylists = async (req: Request, res: Response) => {
  * Get loved playlists
  */
 export const getPlaylistsLiked = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
-	const skip = (page - 1) * limit;
-	const user = res.locals.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const user = res.locals.user;
 
-	const playlists = await Playlist.aggregate([
+  const playlists = await Playlist.aggregate([
     {
       $match: {
         liked: {
@@ -123,9 +123,9 @@ export const getPlaylistsLiked = async (req: Request, res: Response) => {
     { $limit: +limit }
   ]);
 
-	res.json({
-		data: playlists
-	});
+  res.json({
+    data: playlists
+  });
 };
 
 /**
@@ -133,41 +133,41 @@ export const getPlaylistsLiked = async (req: Request, res: Response) => {
  * Get author playlists
  */
 export const getPlaylistsByAuthor = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
-	const skip = (page - 1) * limit;
-	const { id } = req.params;
-	const user = res.locals.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const { id } = req.params;
+  const user = res.locals.user;
 
-	const playlists = await Playlist.aggregate([
-		{
-			$match: {
-				author: Types.ObjectId(id)
-			}
-		},
-		{
-			$addFields: {
-				liked: {
-					$in: [Types.ObjectId(user.id), '$liked']
-				},
-				likedLength: {
-					$size: '$liked'
-				}
-			},
-		},
-		{
-			$sort: {
-				likedLength: -1,
-				liked: -1,
-				createdAt: -1
-			}
-		},
-		{ $skip: +skip },
-		{ $limit: +limit }
-	]);
+  const playlists = await Playlist.aggregate([
+    {
+      $match: {
+        author: Types.ObjectId(id)
+      }
+    },
+    {
+      $addFields: {
+        liked: {
+          $in: [Types.ObjectId(user.id), '$liked']
+        },
+        likedLength: {
+          $size: '$liked'
+        }
+      },
+    },
+    {
+      $sort: {
+        likedLength: -1,
+        liked: -1,
+        createdAt: -1
+      }
+    },
+    { $skip: +skip },
+    { $limit: +limit }
+  ]);
 
-	res.json({
-		data: playlists
-	});
+  res.json({
+    data: playlists
+  });
 };
 
 /**
@@ -175,32 +175,32 @@ export const getPlaylistsByAuthor = async (req: Request, res: Response) => {
  * Create playlist
  */
 export const postPlaylist = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { name, img } = req.body;
-	const errors = [];
+  const user = res.locals.user;
+  const { name, img } = req.body;
+  const errors = [];
 
-	if (!name || isEmpty(name)) {
-		errors.push('Name is not valid');
-	}
-	if (!img || isEmpty(img)) {
-		errors.push('Image is not valid');
-	}
+  if (!name || isEmpty(name)) {
+    errors.push('Name is not valid');
+  }
+  if (!img || isEmpty(img)) {
+    errors.push('Image is not valid');
+  }
 
-	if (!!errors.length) {
-		throw new ApplicationError(errors[0], 404);
-	}
+  if (!!errors.length) {
+    throw new ApplicationError(errors[0], 404);
+  }
 
-	const playlist: IPlaylist = await Playlist.create({
-		name,
-		img,
-		author: user._id,
-		tracks: [],
-		liked: []
-	});
+  const playlist: IPlaylist = await Playlist.create({
+    name,
+    img,
+    author: user._id,
+    tracks: [],
+    liked: []
+  });
 
-	return res.json({
-		data: playlist
-	});
+  return res.json({
+    data: playlist
+  });
 };
 
 /**
@@ -208,69 +208,69 @@ export const postPlaylist = async (req: Request, res: Response, next: NextFuncti
  * Like / unlike playlist
  */
 export const putPlaylistLike = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { id } = req.params;
+  const user = res.locals.user;
+  const { id } = req.params;
 
-	const playlist: IPlaylist = await Playlist.findById(id, {
-		liked: 1,
-		author: 1
-	});
+  const playlist: IPlaylist = await Playlist.findById(id, {
+    liked: 1,
+    author: 1
+  });
 
-	if (!playlist) {
-		throw new ApplicationError('Playlist not found', 404);
-	}
+  if (!playlist) {
+    throw new ApplicationError('Playlist not found', 404);
+  }
 
-	// if (playlist.author == user.id) {
-	// 	return res.json({
-	// 		data: true
-	// 	})
-	// }
+  // if (playlist.author == user.id) {
+  // 	return res.json({
+  // 		data: true
+  // 	})
+  // }
 
-	const liked = playlist.liked.includes(user._id);
+  const liked = playlist.liked.includes(user._id);
 
-	if (liked) {
-		await playlist.update({
-			$pull: {
-				liked: user.id
-			}
-		});
-	} else {
-		await playlist.update({
-			$addToSet: {
-				liked: user.id
-			}
-		});
-	}
+  if (liked) {
+    await playlist.update({
+      $pull: {
+        liked: user.id
+      }
+    });
+  } else {
+    await playlist.update({
+      $addToSet: {
+        liked: user.id
+      }
+    });
+  }
 
-	return res.json({
-		data: !liked
-	});
+  return res.json({
+    data: !liked
+  });
 };
 
 /**
  * DELETE /playlist/l:id
  */
 export const deletePlaylist = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { id } = req.params;
+  const user = res.locals.user;
+  const { id } = req.params;
 
-	const playlist: IPlaylist = await Playlist.findById(id);
+  const playlist: IPlaylist = await Playlist.findById(id);
 
-	if (!playlist) {
-		throw new ApplicationError('Playlist not found', 404);
-	}
-	if (playlist.author != user._id && user.role != 'ADMIN') {
-		throw new ApplicationError('Dont have permission', 403);
-	}
+  if (!playlist) {
+    throw new ApplicationError('Playlist not found', 404);
+  }
+  if (playlist.author != user._id && user.role != 'ADMIN') {
+    throw new ApplicationError('Dont have permission', 403);
+  }
 
-	await playlist.remove();
-	await Track.deleteMany({
-		playlist: playlist._id
-	});
+  await playlist.remove();
+  await Track.deleteMany({
+    playlist: playlist._id
+  });
 
-	return res.json({
-		data: playlist
-	});
+  return res.json({
+    data: playlist
+  });
 };
 
 /**
@@ -278,30 +278,30 @@ export const deletePlaylist = async (req: Request, res: Response, next: NextFunc
  * Update playlist
  */
 export const putPlaylistUpdate = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { name, img } = req.body;
-	const { id } = req.params;
+  const user = res.locals.user;
+  const { name, img } = req.body;
+  const { id } = req.params;
 
-	const playlist: IPlaylist = await Playlist.findById(id);
+  const playlist: IPlaylist = await Playlist.findById(id);
 
-	if (!playlist) {
+  if (!playlist) {
     throw new ApplicationError('Playlist not found', 404);
-	}
-	if (playlist.author != user._id && user.role != 'ADMIN') {
+  }
+  if (playlist.author != user._id && user.role != 'ADMIN') {
     throw new ApplicationError('Dont have permission', 403);
   }
 
-	if (name) {
-		playlist.name = name;
-	}
+  if (name) {
+    playlist.name = name;
+  }
 
-	if (img) {
-		playlist.img = img;
-	}
+  if (img) {
+    playlist.img = img;
+  }
 
-	await playlist.save();
+  await playlist.save();
 
-	return res.json({
-		data: playlist
-	});
+  return res.json({
+    data: playlist
+  });
 };

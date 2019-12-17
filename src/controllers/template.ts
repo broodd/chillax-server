@@ -10,19 +10,19 @@ import { Types } from 'mongoose';
  * Get popular templates
  */
 export const getTemplates = async (req: Request, res: Response) => {
-	const { page = 1, limit = 10 } = req.query;
-	const skip = (page - 1) * limit;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
 
-	const templates: ITemplate[] = await Template.find({})
-		.sort({
-			createdAt: -1
-		})
-		.skip(+skip)
-		.limit(+limit);
+  const templates: ITemplate[] = await Template.find({})
+    .sort({
+      createdAt: -1
+    })
+    .skip(+skip)
+    .limit(+limit);
 
-	res.json({
-		data: templates
-	});
+  res.json({
+    data: templates
+  });
 };
 
 /**
@@ -30,27 +30,27 @@ export const getTemplates = async (req: Request, res: Response) => {
  * Create template
  */
 export const postTemplate = async (req: Request, res: Response, next: NextFunction) => {
-	const user = res.locals.user;
-	const { name, img } = req.body;
-	const errors = [];
+  const user = res.locals.user;
+  const { name, img } = req.body;
+  const errors = [];
 
-	if (!name || isEmpty(name)) {
-		errors.push('Name is not valid');
-	}
-	if (!img || isEmpty(img)) {
-		errors.push('Image is not valid');
-	}
+  if (!name || isEmpty(name)) {
+    errors.push('Name is not valid');
+  }
+  if (!img || isEmpty(img)) {
+    errors.push('Image is not valid');
+  }
 
-	if (!!errors.length) {
-		throw new ApplicationError(errors[0], 404);
-	}
+  if (!!errors.length) {
+    throw new ApplicationError(errors[0], 404);
+  }
 
-	const template: ITemplate = await Template.create({
-		name,
-		img
-	});
+  const template: ITemplate = await Template.create({
+    name,
+    img
+  });
 
-	return res.json({
-		data: template
-	});
+  return res.json({
+    data: template
+  });
 };

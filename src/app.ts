@@ -83,9 +83,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
   logger.error(`[${status}]: ${message}`);
   res.status(status).json({
-		success: false,
-		message
-	});
+    success: false,
+    message
+  });
 });
 
 
